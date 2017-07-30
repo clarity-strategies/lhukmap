@@ -194,7 +194,7 @@ function initialize() {
   var DSAswBound = new google.maps.LatLng(53.46017073266102, -1.0160484313964844);
   var DSAneBound = new google.maps.LatLng(53.492454914314195, -0.9902992248535156);
   DSAbounds = new google.maps.LatLngBounds(DSAswBound, DSAneBound);  
-  var srcImage = '/img/DSA.'+imagetype;
+  var srcImage = 'img/DSA.'+imagetype;
   DSA = new USGSOverlay(DSAbounds, srcImage, map);
   //var RHswBound = new google.maps.LatLng(53.46985564426577, -1.1024217295471317);
   //var RHneBound = new google.maps.LatLng(53.4855885527665, -1.0859298710937537);
@@ -203,27 +203,27 @@ function initialize() {
   var RHneBound = new google.maps.LatLng(53.485509759380214, -1.0859146118164062); 
   
   RHbounds = new google.maps.LatLngBounds(RHswBound, RHneBound);  
-  var srcImage = '/img/RossingtonHousing.'+imagetype;
+  var srcImage = 'img/RossingtonHousing.'+imagetype;
   rossingtonhousing = new USGSOverlay(RHbounds, srcImage, map);
   
   var farrsswBound = new google.maps.LatLng(53.477722827710714, -1.1157989506835975  );
   var farrsneBound = new google.maps.LatLng(53.48855059065725, -1.027221680175785);
   var farrsbounds = new google.maps.LatLngBounds(farrsswBound, farrsneBound);
    
-  var srcImage = '/img/farrssvg.'+imagetype;
+  var srcImage = 'img/farrssvg.'+imagetype;
   farrsroad = new USGSOverlay(farrsbounds, srcImage, map);
 
   var RHABPswBound = new google.maps.LatLng(53.475679543650294, -1.03134155322266);
   var RHABPneBound = new google.maps.LatLng( 53.491818806216585, -1.002502441894535);
   RHABPbounds = new google.maps.LatLngBounds(RHABPswBound, RHABPneBound);  
-  var srcImage = '/img/smlAirportBusiness.'+imagetype;
+  var srcImage = 'img/smlAirportBusiness.'+imagetype;
   airportbusiness = new USGSOverlay(RHABPbounds, srcImage, map);
 
   var FPswBound = new google.maps.LatLng(53.4990926022903, -1.1411895751953125);
   var FPneBound = new google.maps.LatLng(53.502257902930694, -1.12677001953125);
   FPbounds = new google.maps.LatLngBounds(FPswBound, FPneBound);  
   
-  var srcImage = '/img/FirstPoint.'+imagetype;
+  var srcImage = 'img/FirstPoint.'+imagetype;
   firstpoint = new USGSOverlay(FPbounds, srcImage, map);
 
   var iPortswBound = new google.maps.LatLng(53.46773315498049, -1.1166419982910156);
@@ -233,77 +233,77 @@ function initialize() {
   //var iPortneBound = new google.maps.LatLng(53.485509759380214,-1.0946693420410156);
   iPortbounds = new google.maps.LatLngBounds(iPortswBound, iPortneBound);
     
-  var srcImage = '/img/iPort.'+imagetype;
+  var srcImage = 'img/iPort.'+imagetype;
   inlandport = new USGSOverlay(iPortbounds, srcImage, map);
 
   var RPswBound = new google.maps.LatLng(53.504708295963354,-1.1312332153320312);
   var RPneBound = new google.maps.LatLng(53.509608657108835, -1.1150970458984375);
   RPbounds = new google.maps.LatLngBounds(RPswBound, RPneBound);  
   
-  var srcImage = '/img/railport.'+imagetype;
+  var srcImage = 'img/railport.'+imagetype;
   railport = new USGSOverlay(RPbounds, srcImage, map);
 
   var GParkswBound = new google.maps.LatLng(53.52675545984925, -1.0409393310546875);
   var GParkneBound = new google.maps.LatLng(53.53685657643329, -1.0301246643066406);
   GParkbounds = new google.maps.LatLngBounds(GParkswBound, GParkneBound);
 
-  var srcImage = '/img/G-Park.'+imagetype;
+  var srcImage = 'img/G-Park.'+imagetype;
   gpark = new USGSOverlay(GParkbounds, srcImage, map);
 
   var barnhoffswBound = new google.maps.LatLng(53.51920355663, -1.1456527709960938);
   var barnhoffneBound = new google.maps.LatLng(53.522979676528614, -1.1314048767089844);
   barnhoffbounds = new google.maps.LatLngBounds(barnhoffswBound, barnhoffneBound);
   //var srcImage = '/img/barnhoffCircle.'+imagetype;
-  var srcImage = '/img/barnhoffCircle-odt.svg';
+  var srcImage = 'img/barnhoffCircle-odt.svg';
   barnhoff = new USGSOverlay(barnhoffbounds, srcImage, map);
   
   var gooleswBound = new google.maps.LatLng(53.7046684226873, -0.8905487060546875  );
   var gooleneBound = new google.maps.LatLng(53.72112675608852, -0.86102294921875);
   var goolebounds = new google.maps.LatLngBounds(gooleswBound, gooleneBound);
  
-  var srcImage = '/img/port.'+imagetype;
+  var srcImage = 'img/port.'+imagetype;
   gooleport = new USGSOverlay(goolebounds, srcImage, map);
   
   var hullswBound = new google.maps.LatLng(53.746436805410125, -0.32128802490234375);
   var hullneBound = new google.maps.LatLng(53.76288075331084, -0.29176226806640625);
   var hullbounds = new google.maps.LatLngBounds(hullswBound, hullneBound);
  
-  var srcImage = '/img/port.'+imagetype;
+  var srcImage = 'img/port.'+imagetype;
   hullport = new USGSOverlay(hullbounds, srcImage, map);
   
   var imminghamswBound = new google.maps.LatLng(53.634292406208786, -0.214202880859375 );
   var imminghamneBound = new google.maps.LatLng(53.650778255083274, -0.1846771240234375);
   var imminghambounds = new google.maps.LatLngBounds(imminghamswBound, imminghamneBound);
 
-  var srcImage = '/img/port.'+imagetype;
+  var srcImage = 'img/port.'+imagetype;
   imminghamport = new USGSOverlay(imminghambounds, srcImage, map);
   
   var grimsbyswBound = new google.maps.LatLng(53.58381833049242, -0.10616241455078125  );
   var grimsbyneBound = new google.maps.LatLng(53.60033131781952, -0.06663665771484375);
   var grimsbybounds = new google.maps.LatLngBounds(grimsbyswBound, grimsbyneBound);
 
-  var srcImage = '/img/port.'+imagetype;
+  var srcImage = 'img/port.'+imagetype;
   grimsbyport = new USGSOverlay(grimsbybounds, srcImage, map);
 
   var NimbusswBound = new google.maps.LatLng(53.618003760659384, -0.9738044738769531);
   var NimbusneBound = new google.maps.LatLng(53.621771068777306, -0.9595565795898438);
   Nimbusbounds = new google.maps.LatLngBounds(NimbusswBound, NimbusneBound);  
   
-  var srcImage = '/img/nimbuspark.'+imagetype;
+  var srcImage = 'img/nimbuspark.'+imagetype;
   nimbus = new USGSOverlay(Nimbusbounds, srcImage, map);
 
   /*var CapitolswBound = new google.maps.LatLng(53.61309827196784, -0.9808578491210938);
   var CapitolneBound = new google.maps.LatLng(53.61686601786036, -0.9666099548339844);
   Capitolbounds = new google.maps.LatLngBounds(CapitolswBound, CapitolneBound);  
   
-  var srcImage = '/img/capitolpark.'+imagetype;
+  var srcImage = 'img/capitolpark.'+imagetype;
   capitol = new USGSOverlay(Capitolbounds, srcImage, map);   
 */
   var RedhouseswBound = new google.maps.LatLng(53.57203861157364, -1.2143173217773438);
   var RedhouseneBound = new google.maps.LatLng(53.57581002062063, -1.1971511840820312);
   Redhousebounds = new google.maps.LatLngBounds(RedhouseswBound, RedhouseneBound);  
   
-  var srcImage = '/img/redhouse.'+imagetype;
+  var srcImage = 'img/redhouse.'+imagetype;
   redhouse = new USGSOverlay(Redhousebounds, srcImage, map);
 
  /*
@@ -311,7 +311,7 @@ var AMPswBound = new google.maps.LatLng(53.385189091758924, -1.3837471008300781)
   var AMPneBound = new google.maps.LatLng(53.388977146176344, -1.3694992065429688);
   AMPbounds = new google.maps.LatLngBounds(AMPswBound, AMPneBound);  
   
-  var srcImage = '/img/AMP.'+imagetype;
+  var srcImage = 'img/AMP.'+imagetype;
   AMP = new USGSOverlay(AMPbounds, srcImage, map);
 */
  
@@ -319,7 +319,7 @@ var AMPswBound = new google.maps.LatLng(53.385189091758924, -1.3837471008300781)
   var SBPneBound = new google.maps.LatLng(53.39757580230106,-1.376708984375);
   SBPbounds = new google.maps.LatLngBounds(SBPswBound, SBPneBound);  
   
-  var srcImage = '/img/SBP.'+imagetype;
+  var srcImage = 'img/SBP.'+imagetype;
   SBP = new USGSOverlay(SBPbounds, srcImage, map);
 
 
@@ -676,7 +676,7 @@ FARRRSpgn = new google.maps.Polygon({paths: FARRRSpoints,strokeWeight: 0,fillCol
 // New Markers
     newmkrMarkhamVale = new google.maps.Marker({
     position: new google.maps.LatLng(53.240805,-1.3279722),
-    icon:'/img/marker.png',
+    icon:'img/marker.png',
     title:"Markham Vale"
     });
     google.maps.event.addListener(newmkrMarkhamVale, 'click', function() {
@@ -685,7 +685,7 @@ FARRRSpgn = new google.maps.Polygon({paths: FARRRSpoints,strokeWeight: 0,fillCol
 
     newmkrCastlewoodBusinessPark = new google.maps.Marker({
     position: new google.maps.LatLng(53.109596,-1.297800),
-    icon:'/img/marker.png',
+    icon:'img/marker.png',
     title:"Castlewood Business Park"
     });
     google.maps.event.addListener(newmkrCastlewoodBusinessPark, 'click', function() {
@@ -694,7 +694,7 @@ FARRRSpgn = new google.maps.Polygon({paths: FARRRSpoints,strokeWeight: 0,fillCol
 
     newmkrCapitolPark = new google.maps.Marker({
     position: new google.maps.LatLng(53.551307,-1.522557),
-    icon:'/img/marker.png',
+    icon:'img/marker.png',
     title:"Capitol Park"
     });
     google.maps.event.addListener(newmkrCapitolPark, 'click', function() {
@@ -703,7 +703,7 @@ FARRRSpgn = new google.maps.Polygon({paths: FARRRSpoints,strokeWeight: 0,fillCol
 
     newmkrDinningtonPhase2 = new google.maps.Marker({
     position: new google.maps.LatLng(53.370072,-1.236964),
-    icon:'/img/marker.png',
+    icon:'img/marker.png',
     title:"Dinnington Phase2"
     });
     google.maps.event.addListener(newmkrDinningtonPhase2, 'click', function() {
@@ -712,7 +712,7 @@ FARRRSpgn = new google.maps.Polygon({paths: FARRRSpoints,strokeWeight: 0,fillCol
 
     newmkrRockingham = new google.maps.Marker({
     position: new google.maps.LatLng(53.504547,-1.467288),
-    icon:'/img/marker.png',
+    icon:'img/marker.png',
     title:"Rockingham"
     });
     google.maps.event.addListener(newmkrRockingham, 'click', function() {
@@ -721,7 +721,7 @@ FARRRSpgn = new google.maps.Polygon({paths: FARRRSpoints,strokeWeight: 0,fillCol
 
     newmkrHarworthPhase1 = new google.maps.Marker({
     position: new google.maps.LatLng(53.408847,-1.067265),
-    icon:'/img/marker.png',
+    icon:'img/marker.png',
     title:"Harworth Phase1"
     });
     google.maps.event.addListener(newmkrHarworthPhase1, 'click', function() {
@@ -730,7 +730,7 @@ FARRRSpgn = new google.maps.Polygon({paths: FARRRSpoints,strokeWeight: 0,fillCol
 
     newmkrHarworthPhase2 = new google.maps.Marker({
     position: new google.maps.LatLng(53.415836,-1.058522),
-    icon:'/img/marker.png',
+    icon:'img/marker.png',
     title:"Harworth Phase2"
     });
     google.maps.event.addListener(newmkrHarworthPhase2, 'click', function() {
@@ -739,7 +739,7 @@ FARRRSpgn = new google.maps.Polygon({paths: FARRRSpoints,strokeWeight: 0,fillCol
 
     newmkrThorne = new google.maps.Marker({
     position: new google.maps.LatLng(53.634983,-0.934267),
-    icon:'/img/marker.png',
+    icon:'img/marker.png',
     title:"Thorne"
     });
     google.maps.event.addListener(newmkrThorne, 'click', function() {
@@ -772,7 +772,7 @@ showmodal('<h3>Advanced Manufacturing Park, Waverley</h3><img src="http://lh6.gg
     mkrSBP = new google.maps.Marker({
     position: new google.maps.LatLng(53.396504,-1.388097),
     //map: map,
-    icon:'/img/marker.png',
+    icon:'img/marker.png',
     title:"Sheffield Business Park"
     });
     google.maps.event.addListener(mkrSBP, 'click', function() {
@@ -781,7 +781,7 @@ showmodal('<h3>Advanced Manufacturing Park, Waverley</h3><img src="http://lh6.gg
     mkrredhouse = new google.maps.Marker({
     position: new google.maps.LatLng(53.573329,-1.213131),
     //map: map,
-    icon:'/img/marker.png',
+    icon:'img/marker.png',
     title:"Redhouse Interchange"
     });
     google.maps.event.addListener(mkrredhouse, 'click', function() {
@@ -790,7 +790,7 @@ showmodal('<h3>Advanced Manufacturing Park, Waverley</h3><img src="http://lh6.gg
     mkrnimbus = new google.maps.Marker({
     position: new google.maps.LatLng(53.620149,-0.972033),
     //map: map,
-    icon:'/img/marker.png',
+    icon:'img/marker.png',
     title:"Nimbus Park"
     });
     google.maps.event.addListener(mkrnimbus, 'click', function() {
@@ -798,7 +798,7 @@ showmodal('<h3>Advanced Manufacturing Park, Waverley</h3><img src="http://lh6.gg
     });
     mkruk = new google.maps.Marker({
     position: new google.maps.LatLng(53.494751, -1.086102),
-    icon:'/img/marker-blue-48px.png',
+    icon:'img/marker-blue-48px.png',
     title:"LogisticsHubUK"
     });
     google.maps.event.addListener(mkruk, 'click', function() {
@@ -1008,14 +1008,14 @@ function canals(){
   var canalgooleneBound = new google.maps.LatLng(53.69646120721985, -0.8837051391601562);
   var canalgoolebounds = new google.maps.LatLngBounds(canalgooleswBound, canalgooleneBound);
   
-  var srcImage = '/img/canal-goole.'+imagetype;
+  var srcImage = 'img/canal-goole.'+imagetype;
   canalgoole = new USGSOverlay(canalgoolebounds, srcImage, map);
     
   var canaltrentswBound = new google.maps.LatLng(53.587241807367526, -1.072509765625  );
   var canaltrentneBound = new google.maps.LatLng(53.612708597132645, -0.738800048828125);
   var canaltrentbounds = new google.maps.LatLngBounds(canaltrentswBound, canaltrentneBound);
   
-  var srcImage = '/img/canal-trent.'+imagetype;
+  var srcImage = 'img/canal-trent.'+imagetype;
   canaltrent = new USGSOverlay(canaltrentbounds, srcImage, map);
 
     map.setCenter(new google.maps.LatLng(53.6104327954549, -0.9616470336914062));
