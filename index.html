@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>logistics hub uk Map</title>
+    <style>
+    body{font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;}
+      html, body, #map-canvas {height: 100%;margin: 0px;padding: 0px,}
+      #modal-div img{max-width:95%;padding:5px; border: 1px solid #ccc;}
+      #keypanel {display:none;position: absolute;top: 31px;left: 6px;;z-index: 5;background-color: #fff;padding: 10px;border: 1px solid #999;width: 160px;font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;font-size:13px;}
+      #modal-background {display: none;position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: white;opacity: .50;-webkit-opacity: .5;-moz-opacity: .5;filter: alpha(opacity=50); z-index: 1000;}
+    #modal-div {background-color: white;/*border-radius: 10px;-webkit-border-radius: 10px;-moz-border-radius: 10px;*/box-shadow: 0 0 20px 0 #222;-webkit-box-shadow: 0 0 20px 0 #222;-moz-box-shadow: 0 0 20px 0 #222;display: none;/*height: 640px;*/left: 50%;margin: -120px 0 0 -160px;padding: 10px;position: absolute;top: 20%;width: 360px;z-index: 1000;}
+
+    #modal-background.active, #modal-div.active {display: block;}
+    #modal-close{float:right;font-weight:bold; background-color:#bf1919;color:white;border:0}/*-webkit-border-radius: 50%;-moz-border-radius: 50%;border-radius: 50%;*/
+    #hubcontrol{display:block;}
+    .xlogisticshubbtn{background-color:#000;color:#fff;}
+    .xcanalbtn{color:#fff;background-color:#15b4d4;}
+    .rmm-button {display: block;position: absolute;left: 6px;top: 6px;width: 20px;padding: 0px 7px 0px 7px;border: 1px solid #3e587b;border-radius: 3px;background-position: top;background-color:white;z-index: 1000;}
+    .rmm-button span {display: block;margin: 4px 0px 4px 0px;height: 2px;background: orange;width: 20px;}
+    #keypanel h3{margin-bottom: 2px;font-size:14px;text-transform:uppercase;font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;}
+    #keypanel hr{border: 0;border-bottom: 1px solid #ccc;background: #999;}
+    #keypanel input[type="button"]{position:relative;right: 5px;padding:1px;border:none;background-color:rgb(79, 125, 194);color:#fff;font-weight:normal;}
+    #keypanel ul{list-style-type:none;margin-left:-25px;}
+    #keypanel li{font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;font-size:13px;}
+    .shadow {-moz-box-shadow:    3px 3px 1px #888;-webkit-box-shadow: 3px 3px 1px #888; box-shadow: 3px 3px 1px #888;}
+    </style>
+    <script src="//maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+     <script src="maps/maplabel-compiled.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+    <script>
+// Adds hide() and show() methods to a custom overlay's prototype.
+// These methods toggle the visibility of the container <div>.
+
+var mapview = (document.location.search).substr(1).split('=');
+
+var imagetype, overlay, map, herepgn, DSAbounds, GParkbounds, iPortbounds, FPbounds, canalgoole, canaltrent, lsoCircle, lsoLabel;
+var lso = {}, mkrcapitol, mkrAMP, mkrSBP, mkrredhouse, mkrnimbus, mkruk;
+    // var ie = !(navigator.userAgent.indexOf("MSIE")<0);
+       //if(ie == false) { 
+        //imagetype = 'svg';
+      // } else {
+         //imagetype = 'png';
+      // }
+       var ie = !(navigator.userAgent.indexOf("MSIE 8.0")<0);
+       if(ie == false) { 
+        imagetype = 'svg';
+       } else {
+         imagetype = 'png';
+       }
+var railStyles = [
+    {"featureType": "water","elementType": "geometry","stylers": [{"hue": "#165c64"},{"saturation": 34},{"lightness": -69 },{"visibility": "on"}]},
+    {"featureType": "landscape","elementType": "geometry","stylers": [{"hue": "#b7caaa"},{"saturation": -14},{"lightness": -18},{"visibility": "on"}]},
+    {"featureType": "landscape.man_made","elementType": "all","stylers": [{"hue": "#cbdac1" },{"saturation": -6},{"lightness": -9},{"visibility": "on"}]},
+    {"featureType": "road", "elementType": "geometry","stylers": [{"hue": "#8d9b83"},{"saturation": -89},{"lightness": -12},{"visibility": "on"}]},
+    {"featureType":"road.arterial","elementType":"geometry","stylers":[{"hue":"#bdc5b6"},{"saturation":-89},{"lightness":-3},{"visibility":"simplified"}]},
+    {"featureType":"road.local","elementType":"geometry","stylers":[{"hue":"#bdc5b6"},{"saturation":-89},{"lightness":-26},{"visibility":"on"}]},
+    //{"featureType": "transit","stylers": [{ "visibility": "off" }]},
+    {"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},
+    {"featureType":"poi.park","elementType":"all","stylers":[{"visibility":"off"}]},
+    {"featureType":"poi.business","elementType":"all","stylers":[{"visibility":"off"}]},
+    {"featureType":"transit","elementType":"geometry","stylers":[{"hue":"#a43218"},{"saturation":74},{"lightness":-51},{"visibility":"simplified"}]},
+    {"featureType":"administrative.province","elementType":"all","stylers":[{"hue":"#ffffff"},{"saturation":0},{"lightness":100},{"visibility":"simplified"}]},    
+    {"featureType":"administrative.neighborhood","elementType":"all","stylers":[{"hue":"#ffffff"},{"saturation":0},{"lightness":100},{"visibility":"off"}]},
+    {"featureType":"administrative.locality","elementType":"labels","stylers":[{"hue":"#ffffff"},{"saturation":0},{"lightness":100},{"visibility":"off"}]},
+    {"featureType":"administrative.land_parcel","elementType":"all","stylers":[{"hue":"#ffffff"},{"saturation":0},{"lightness":100},{"visibility":"off"}]},
+    {"featureType":"administrative","elementType":"all","stylers":[{"hue":"#3a3935"},{"saturation":5},{"lightness":-57},{"visibility":"off"}]},
+    {"featureType":"landscape.natural","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.local","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.arterial","elementType":"labels","stylers":[{"visibility":"off"}]},
+    //{"featureType":"transit.line","stylers":[{"visibility":"off"}]},
+    {"featureType":"poi","elementType":"geometry","stylers":[{"visibility":"off"}]},
+    {"featureType":"administrative.locality","elementType":"labels.text","stylers":[{"visibility":"on"},{"color":"#000000"},{"weight":0.1}]},
+    {"featureType":"transit","elementType":"labels","stylers":[{"visibility":"on"},{"weight":0.1}]},
+    {"featureType":"transit.station","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.highway.controlled_access","elementType":"geometry","stylers":[{"hue":"#0008ff"},{"saturation":50},{"lightness":-30}]},
+    {"featureType":"road.highway","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.highway.controlled_access","elementType":"labels","stylers":[{"visibility":"on"}]},
+    {"featureType": "transit.line","stylers": [{ "color": "#000000" },{ "weight": 2.5 }]}
+  ];
+var canalStyles = [
+    {"featureType": "water","elementType": "geometry","stylers": [{"hue": "#165c64"},{"saturation": 34},{"lightness": -69 },{"visibility": "on"}]},
+    {"featureType": "landscape","elementType": "geometry","stylers": [{"hue": "#b7caaa"},{"saturation": -14},{"lightness": -18},{"visibility": "on"}]},
+    {"featureType": "landscape.man_made","elementType": "all","stylers": [{"hue": "#cbdac1" },{"saturation": -6},{"lightness": -9},{"visibility": "on"}]},
+    {"featureType": "road","stylers": [{ "visibility": "off" }]},
+    {"featureType": "transit","stylers": [{ "visibility": "off" }]},
+    {"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},
+    {"featureType":"poi.park","elementType":"all","stylers":[{"visibility":"off"}]},
+    {"featureType":"poi.business","elementType":"all","stylers":[{"visibility":"off"}]},
+    {"featureType":"transit","elementType":"geometry","stylers":[{"hue":"#a43218"},{"saturation":74},{"lightness":-51},{"visibility":"simplified"}]},
+    {"featureType":"administrative.province","elementType":"all","stylers":[{"hue":"#ffffff"},{"saturation":0},{"lightness":100},{"visibility":"simplified"}]},    
+    {"featureType":"administrative.neighborhood","elementType":"all","stylers":[{"hue":"#ffffff"},{"saturation":0},{"lightness":100},{"visibility":"off"}]},
+    {"featureType":"administrative.locality","elementType":"labels","stylers":[{"hue":"#ffffff"},{"saturation":0},{"lightness":100},{"visibility":"off"}]},
+    {"featureType":"administrative.land_parcel","elementType":"all","stylers":[{"hue":"#ffffff"},{"saturation":0},{"lightness":100},{"visibility":"off"}]},
+    {"featureType":"administrative","elementType":"all","stylers":[{"hue":"#3a3935"},{"saturation":5},{"lightness":-57},{"visibility":"off"}]},
+    {"featureType":"landscape.natural","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.local","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.arterial","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"transit.line","stylers":[{"visibility":"off"}]},
+    {"featureType":"poi","elementType":"geometry","stylers":[{"visibility":"off"}]},
+    {"featureType":"administrative.locality","elementType":"labels.text","stylers":[{"visibility":"on"},{"color":"#000000"},{"weight":0.1}]},
+    //{"featureType":"transit","elementType":"labels","stylers":[{"visibility":"on"},{"weight":0.1}]},
+    {"featureType":"transit.station","stylers":[{"visibility":"off"}]}
+  ];
+var styles = [
+    {"featureType": "water","elementType": "geometry","stylers": [{"hue": "#165c64"},{"saturation": 34},{"lightness": -69 },{"visibility": "on"}]},
+    {"featureType": "landscape","elementType": "geometry","stylers": [{"hue": "#b7caaa"},{"saturation": -14},{"lightness": -18},{"visibility": "on"}]},
+    {"featureType": "landscape.man_made","elementType": "all","stylers": [{"hue": "#cbdac1" },{"saturation": -6},{"lightness": -9},{"visibility": "on"}]},
+    {"featureType": "road", "elementType": "geometry","stylers": [{"hue": "#8d9b83"},{"saturation": -89},{"lightness": -12},{"visibility": "on"}]},
+    {"featureType":"road.arterial","elementType":"geometry","stylers":[{"hue":"#bdc5b6"},{"saturation":-89},{"lightness":-3},{"visibility":"simplified"}]},
+    {"featureType":"road.local","elementType":"geometry","stylers":[{"hue":"#bdc5b6"},{"saturation":-89},{"lightness":-26},{"visibility":"on"}]},
+    {"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},
+    {"featureType":"poi.park","elementType":"all","stylers":[{"visibility":"off"}]},
+    {"featureType":"poi.business","elementType":"all","stylers":[{"visibility":"off"}]},
+    {"featureType":"transit","elementType":"geometry","stylers":[{"hue":"#a43218"},{"saturation":74},{"lightness":-51},{"visibility":"simplified"}]},
+    {"featureType":"administrative.province","elementType":"all","stylers":[{"hue":"#ffffff"},{"saturation":0},{"lightness":100},{"visibility":"simplified"}]},    
+    {"featureType":"administrative.neighborhood","elementType":"all","stylers":[{"hue":"#ffffff"},{"saturation":0},{"lightness":100},{"visibility":"off"}]},
+    {"featureType":"administrative.locality","elementType":"labels","stylers":[{"hue":"#ffffff"},{"saturation":0},{"lightness":100},{"visibility":"off"}]},
+    {"featureType":"administrative.land_parcel","elementType":"all","stylers":[{"hue":"#ffffff"},{"saturation":0},{"lightness":100},{"visibility":"off"}]},
+    {"featureType":"administrative","elementType":"all","stylers":[{"hue":"#3a3935"},{"saturation":5},{"lightness":-57},{"visibility":"off"}]},
+    {"featureType":"landscape.natural","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.local","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.arterial","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"transit.line","stylers":[{"color":"#000000"}]},
+    {"featureType":"poi","elementType":"geometry","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.highway.controlled_access","elementType":"geometry","stylers":[{"hue":"#0008ff"},{"saturation":50},{"lightness":-30}]},
+    {"featureType":"road.highway","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.highway.controlled_access","elementType":"labels","stylers":[{"visibility":"on"}]},
+    {"featureType":"administrative.locality","elementType":"labels.text","stylers":[{"visibility":"on"},{"color":"#000000"},{"weight":0.1}]},
+    {"featureType":"transit","elementType":"labels","stylers":[{"visibility":"on"},{"weight":0.1}]},
+    {"featureType":"transit.station","stylers":[{"visibility":"off"}]}
+  ];
+
+
+USGSOverlay.prototype = new google.maps.OverlayView();
+
+function initialize() {
+  var myLatLng = new google.maps.LatLng(53.494751, -1.086102);
+  var mapOptions = {
+    zoom: 12,
+    center: myLatLng,
+    mapTypeControl: true,
+    panControl: false,
+    zoomControl: true,
+    zoomControlOptions: {
+      style: google.maps.ZoomControlStyle.SMALL,
+      position: google.maps.ControlPosition.RIGHT_TOP
+    },
+    scaleControl: true,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  };
+
+  map = new google.maps.Map(document.getElementById('map-canvas'),
+      mapOptions);
+      
+  map.setOptions({styles: styles});
+  
+  var canalstyledMapOptions = {
+    name: 'Canals'
+  };
+
+  var canalType = new google.maps.StyledMapType(
+      canalStyles, canalstyledMapOptions);
+
+  map.mapTypes.set('canal', canalType);
+  //map.setMapTypeId('usroadatlas');
+  var railstyledMapOptions = {
+    name: 'Rail'
+  };
+
+  var railType = new google.maps.StyledMapType(
+      railStyles, railstyledMapOptions);
+
+  map.mapTypes.set('rail', railType);
+  
+  var LDstyledMapOptions = {
+    name: 'Logistics Hub'
+  };
+
+  var ldRoadMapType = new google.maps.StyledMapType(
+      styles, LDstyledMapOptions);
+
+  map.mapTypes.set('ldroadatlas', ldRoadMapType);
+  map.setMapTypeId('ldroadatlas');
+  
+
+   
+  var swBound = new google.maps.LatLng(53.45426022234118, -1.2335281372070312  );
+  var neBound = new google.maps.LatLng(53.55411202365702, -0.9487419128417969);
+  var bounds = new google.maps.LatLngBounds(swBound, neBound);
+  
+  var DSAswBound = new google.maps.LatLng(53.46017073266102, -1.0160484313964844);
+  var DSAneBound = new google.maps.LatLng(53.492454914314195, -0.9902992248535156);
+  DSAbounds = new google.maps.LatLngBounds(DSAswBound, DSAneBound);  
+  var srcImage = '/img/DSA.'+imagetype;
+  DSA = new USGSOverlay(DSAbounds, srcImage, map);
+  //var RHswBound = new google.maps.LatLng(53.46985564426577, -1.1024217295471317);
+  //var RHneBound = new google.maps.LatLng(53.4855885527665, -1.0859298710937537);
+
+  var RHswBound = new google.maps.LatLng(53.46977682165853, -1.1035957336425781);
+  var RHneBound = new google.maps.LatLng(53.485509759380214, -1.0859146118164062); 
+  
+  RHbounds = new google.maps.LatLngBounds(RHswBound, RHneBound);  
+  var srcImage = '/img/RossingtonHousing.'+imagetype;
+  rossingtonhousing = new USGSOverlay(RHbounds, srcImage, map);
+  
+  var farrsswBound = new google.maps.LatLng(53.477722827710714, -1.1157989506835975  );
+  var farrsneBound = new google.maps.LatLng(53.48855059065725, -1.027221680175785);
+  var farrsbounds = new google.maps.LatLngBounds(farrsswBound, farrsneBound);
+   
+  var srcImage = '/img/farrssvg.'+imagetype;
+  farrsroad = new USGSOverlay(farrsbounds, srcImage, map);
+
+  var RHABPswBound = new google.maps.LatLng(53.475679543650294, -1.03134155322266);
+  var RHABPneBound = new google.maps.LatLng( 53.491818806216585, -1.002502441894535);
+  RHABPbounds = new google.maps.LatLngBounds(RHABPswBound, RHABPneBound);  
+  var srcImage = '/img/smlAirportBusiness.'+imagetype;
+  airportbusiness = new USGSOverlay(RHABPbounds, srcImage, map);
+
+  var FPswBound = new google.maps.LatLng(53.4990926022903, -1.1411895751953125);
+  var FPneBound = new google.maps.LatLng(53.502257902930694, -1.12677001953125);
+  FPbounds = new google.maps.LatLngBounds(FPswBound, FPneBound);  
+  
+  var srcImage = '/img/FirstPoint.'+imagetype;
+  firstpoint = new USGSOverlay(FPbounds, srcImage, map);
+
+  var iPortswBound = new google.maps.LatLng(53.46773315498049, -1.1166419982910156);
+  var iPortneBound = new google.maps.LatLng(53.48581618725437,-1.0946693420410156);
+
+  //var iPortswBound = new google.maps.LatLng(53.46742659649176, -1.1166419982910156);
+  //var iPortneBound = new google.maps.LatLng(53.485509759380214,-1.0946693420410156);
+  iPortbounds = new google.maps.LatLngBounds(iPortswBound, iPortneBound);
+    
+  var srcImage = '/img/iPort.'+imagetype;
+  inlandport = new USGSOverlay(iPortbounds, srcImage, map);
+
+  var RPswBound = new google.maps.LatLng(53.504708295963354,-1.1312332153320312);
+  var RPneBound = new google.maps.LatLng(53.509608657108835, -1.1150970458984375);
+  RPbounds = new google.maps.LatLngBounds(RPswBound, RPneBound);  
+  
+  var srcImage = '/img/railport.'+imagetype;
+  railport = new USGSOverlay(RPbounds, srcImage, map);
+
+  var GParkswBound = new google.maps.LatLng(53.52675545984925, -1.0409393310546875);
+  var GParkneBound = new google.maps.LatLng(53.53685657643329, -1.0301246643066406);
+  GParkbounds = new google.maps.LatLngBounds(GParkswBound, GParkneBound);
+
+  var srcImage = '/img/G-Park.'+imagetype;
+  gpark = new USGSOverlay(GParkbounds, srcImage, map);
+
+  var barnhoffswBound = new google.maps.LatLng(53.51920355663, -1.1456527709960938);
+  var barnhoffneBound = new google.maps.LatLng(53.522979676528614, -1.1314048767089844);
+  barnhoffbounds = new google.maps.LatLngBounds(barnhoffswBound, barnhoffneBound);
+  //var srcImage = '/img/barnhoffCircle.'+imagetype;
+  var srcImage = '/img/barnhoffCircle-odt.svg';
+  barnhoff = new USGSOverlay(barnhoffbounds, srcImage, map);
+  
+  var gooleswBound = new google.maps.LatLng(53.7046684226873, -0.8905487060546875  );
+  var gooleneBound = new google.maps.LatLng(53.72112675608852, -0.86102294921875);
+  var goolebounds = new google.maps.LatLngBounds(gooleswBound, gooleneBound);
+ 
+  var srcImage = '/img/port.'+imagetype;
+  gooleport = new USGSOverlay(goolebounds, srcImage, map);
+  
+  var hullswBound = new google.maps.LatLng(53.746436805410125, -0.32128802490234375);
+  var hullneBound = new google.maps.LatLng(53.76288075331084, -0.29176226806640625);
+  var hullbounds = new google.maps.LatLngBounds(hullswBound, hullneBound);
+ 
+  var srcImage = '/img/port.'+imagetype;
+  hullport = new USGSOverlay(hullbounds, srcImage, map);
+  
+  var imminghamswBound = new google.maps.LatLng(53.634292406208786, -0.214202880859375 );
+  var imminghamneBound = new google.maps.LatLng(53.650778255083274, -0.1846771240234375);
+  var imminghambounds = new google.maps.LatLngBounds(imminghamswBound, imminghamneBound);
+
+  var srcImage = '/img/port.'+imagetype;
+  imminghamport = new USGSOverlay(imminghambounds, srcImage, map);
+  
+  var grimsbyswBound = new google.maps.LatLng(53.58381833049242, -0.10616241455078125  );
+  var grimsbyneBound = new google.maps.LatLng(53.60033131781952, -0.06663665771484375);
+  var grimsbybounds = new google.maps.LatLngBounds(grimsbyswBound, grimsbyneBound);
+
+  var srcImage = '/img/port.'+imagetype;
+  grimsbyport = new USGSOverlay(grimsbybounds, srcImage, map);
+
+  var NimbusswBound = new google.maps.LatLng(53.618003760659384, -0.9738044738769531);
+  var NimbusneBound = new google.maps.LatLng(53.621771068777306, -0.9595565795898438);
+  Nimbusbounds = new google.maps.LatLngBounds(NimbusswBound, NimbusneBound);  
+  
+  var srcImage = '/img/nimbuspark.'+imagetype;
+  nimbus = new USGSOverlay(Nimbusbounds, srcImage, map);
+
+  /*var CapitolswBound = new google.maps.LatLng(53.61309827196784, -0.9808578491210938);
+  var CapitolneBound = new google.maps.LatLng(53.61686601786036, -0.9666099548339844);
+  Capitolbounds = new google.maps.LatLngBounds(CapitolswBound, CapitolneBound);  
+  
+  var srcImage = '/img/capitolpark.'+imagetype;
+  capitol = new USGSOverlay(Capitolbounds, srcImage, map);   
+*/
+  var RedhouseswBound = new google.maps.LatLng(53.57203861157364, -1.2143173217773438);
+  var RedhouseneBound = new google.maps.LatLng(53.57581002062063, -1.1971511840820312);
+  Redhousebounds = new google.maps.LatLngBounds(RedhouseswBound, RedhouseneBound);  
+  
+  var srcImage = '/img/redhouse.'+imagetype;
+  redhouse = new USGSOverlay(Redhousebounds, srcImage, map);
+
+ /*
+var AMPswBound = new google.maps.LatLng(53.385189091758924, -1.3837471008300781);
+  var AMPneBound = new google.maps.LatLng(53.388977146176344, -1.3694992065429688);
+  AMPbounds = new google.maps.LatLngBounds(AMPswBound, AMPneBound);  
+  
+  var srcImage = '/img/AMP.'+imagetype;
+  AMP = new USGSOverlay(AMPbounds, srcImage, map);
+*/
+ 
+  var SBPswBound = new google.maps.LatLng(53.39378851307469 ,-1.3913002014160156 );
+  var SBPneBound = new google.maps.LatLng(53.39757580230106,-1.376708984375);
+  SBPbounds = new google.maps.LatLngBounds(SBPswBound, SBPneBound);  
+  
+  var srcImage = '/img/SBP.'+imagetype;
+  SBP = new USGSOverlay(SBPbounds, srcImage, map);
+
+
+var goolepoints =
+[
+new google.maps.LatLng(53.71946627930625, -0.88714599609375),
+new google.maps.LatLng(53.720685207100445, -0.86517333984375),
+new google.maps.LatLng(53.706868623357494, -0.8631134033203125),
+new google.maps.LatLng(53.706868623357494, -0.8864593505859375)
+];
+
+  // Construct the polygon.
+  goolepgn = new google.maps.Polygon({paths: goolepoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  goolepgn.setMap(map);
+  google.maps.event.addListener(goolepgn,"click",function(){
+  showmodal('<h3>Port of Goole</h3><ul><li>100 acres, handling 2m tonnes per annum</li><li>Located on the River Ouse - the UK’s most inland port</li><li>Handling containers, dry bulks, forest products, liquid bulks, general cargo, steel</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/p/fast-market-access.html#BySea">more.</a>');
+});
+
+var hullpoints =
+[
+new google.maps.LatLng(53.76291953358965, -0.3179168701171875),
+new google.maps.LatLng(53.7612959212371, -0.2959442138671875),
+new google.maps.LatLng(53.74871079689897, -0.295257568359375),
+new google.maps.LatLng(53.74952285419748, -0.3179168701171875)
+];
+
+  // Construct the polygon.
+  hullpgn = new google.maps.Polygon({paths: hullpoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  hullpgn.setMap(map);
+  google.maps.event.addListener(hullpgn,"click",function(){
+  showmodal('<h3>Port of Hull</h3><ul><li>3,000 acres, handling 10m tonnes per annum</li><li>All-weather terminal located 20 miles from the North Sea</li><li>Handling containers, energy goods, dry bulks, paper and forest products, fresh produce and perishables, general cargo, liquid bulks</li><li>Serving the UK’s largest offshore wind farm</li></ul>Find out <a href="http://www.logisticshubuk.com/p/fast-market-access.html#BySea">more.</a>');
+});
+
+var imminghampoints =
+[
+new google.maps.LatLng(53.65074294857527, -0.210113525390625),
+new google.maps.LatLng(53.64952199454264, -0.1888275146484375),
+new google.maps.LatLng(53.63649628489507, -0.188140869140625),
+new google.maps.LatLng(53.63608916664473, -0.2108001708984375)
+];
+
+  // Construct the polygon.
+  imminghampgn = new google.maps.Polygon({paths: imminghampoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  imminghampgn.setMap(map);
+  google.maps.event.addListener(imminghampgn,"click",function(){
+  showmodal('<h3>Port of Immingham</h3><ul><li>The UK’s largest port by tonnage</li><li>1,230 acres, handling 50m tonnes per annum</li><li>Handling dry bulks, containers, RoRo, forest products, general cargo, liquid bulks, steel, offshore wind products</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/p/fast-market-access.html#BySea">more.</a>');
+
+});
+
+var grimsbypoints =
+[
+new google.maps.LatLng(53.600247373008564, -0.0981903076171875),
+new google.maps.LatLng(53.59943243309454, -0.0762176513671875),
+new google.maps.LatLng(53.5859836545598, -0.0748443603515625),
+new google.maps.LatLng(53.585576048991676, -0.0981903076171875)
+];
+
+  // Construct the polygon.
+  grimsbypgn = new google.maps.Polygon({paths: grimsbypoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  grimsbypgn.setMap(map);
+  var grimsbyhtml = '<h3>Port of Grimsby</h3><ul><li>550 acres, handling 1m tonnes per annum</li><li>The UK’s major car import terminal</li><li>Handling fresh produce and perishables, dry bulks, forest products, general cargo, minerals and metals</li><li>Serving the offshore wind energy sector</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/p/fast-market-access.html#BySea">more.</a>'
+  google.maps.event.addListener(grimsbypgn,"click",function(){
+   showmodal(grimsbyhtml);
+  });
+    //google.maps.event.addListener(grimsbypgn,"mouseover",function(){
+   //showmodal(grimsbyhtml);
+  //});
+  
+ var iPortpoints = [                
+     new google.maps.LatLng(53.48579846501053, -1.1067008972167969),
+     new google.maps.LatLng(53.48549203700836, -1.09588623046875),
+     new google.maps.LatLng(53.4844705943473, -1.0953712463378906),
+     new google.maps.LatLng(53.47783061751601, -1.1001777648925781),
+     new google.maps.LatLng(53.47752413195797, -1.1017227172851562),
+     new google.maps.LatLng(53.469759092714234, -1.1061859130859375),
+     new google.maps.LatLng(53.46904382027107, -1.1108207702636719),
+     new google.maps.LatLng(53.469759092714234, -1.1127090454101562),
+     new google.maps.LatLng(53.46924818505626, -1.1140823364257812),
+     new google.maps.LatLng(53.469146002786665, -1.1154556274414062)
+   ];
+
+  // Construct the polygon.
+  iPortpgn = new google.maps.Polygon({paths: iPortpoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  iPortpgn.setMap(map);
+  google.maps.event.addListener(iPortpgn,"click",function(){
+  showmodal('<h3>iPort Inland Port Development</h3><ul><li>Up to 5.75m sq.ft. of rail-linked distribution warehousing</li><li>Intermodal container facility with direct motorway access and rail-to-port container services</li><li>Building footprints in excess of 1m sq.ft. for major retailers and 3PLs</li><li>Customs clearance and bonded warehouses on site   </li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/p/the-uks-central-transport-hub.html#iPortInland Port Development">more</a>');
+});
+ var rossingtonpoints = [                
+new google.maps.LatLng(53.484674884847145, -1.0927963256835938),
+new google.maps.LatLng(53.484164156752804, -1.0943412780761719),
+new google.maps.LatLng(53.477217644186126, -1.0988044738769531),
+new google.maps.LatLng(53.473846132584065, -1.1022377014160156),
+new google.maps.LatLng(53.47129177878883, -1.1005210876464844),
+new google.maps.LatLng(53.47210918873058, -1.0960578918457031),
+new google.maps.LatLng(53.47405047424601, -1.0898780822753906),
+new google.maps.LatLng(53.48007811063232, -1.0891914367675781),
+new google.maps.LatLng(53.4838577169447, -1.0895347595214844),
+new google.maps.LatLng(53.469146002786665, -1.1154556274414062)
+   ];
+
+  // Construct the polygon.
+  rossingtonpgn = new google.maps.Polygon({paths: rossingtonpoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  rossingtonpgn.setMap(map);
+  google.maps.event.addListener(rossingtonpgn,"click",function(){
+  showmodal('<h3>Rossington - New Housing</h3><ul><li>Major regeneration project next to the iPort inland port</li><li>Mixed-use development including commercial buildings, food retail, potential school and health centre and up to 1,200 homes</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/p/the-uks-central-transport-hub.html#RossingtonNew Housing">more</a>')
+});
+ var DSApoints = [ 
+new google.maps.LatLng(53.492029,-1.002502),
+new google.maps.LatLng(53.486309,-1.003361),
+new google.maps.LatLng(53.475481,-1.010742),
+new google.maps.LatLng(53.473131,-1.010227),
+new google.maps.LatLng(53.468635,-1.011944),
+new google.maps.LatLng(53.465876,-1.01263),
+new google.maps.LatLng(53.462197,-1.01469),
+new google.maps.LatLng(53.460562,-1.009026),
+new google.maps.LatLng(53.462197,-1.008511),
+new google.maps.LatLng(53.462708,-1.007309),
+new google.maps.LatLng(53.47497,-1.000099),
+new google.maps.LatLng(53.477013,-0.998898),
+new google.maps.LatLng(53.479465,-0.996151),
+new google.maps.LatLng(53.482121,-0.993919),
+new google.maps.LatLng(53.482734,-0.996151),
+new google.maps.LatLng(53.487126,-0.993061),
+new google.maps.LatLng(53.487331,-0.992031),
+new google.maps.LatLng(53.48876,-0.991516),
+new google.maps.LatLng(53.489271,-0.994263),
+new google.maps.LatLng(53.490292,-0.993748)
+   ];
+   
+    // Construct the polygon.
+  DSApgn = new google.maps.Polygon({paths: DSApoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  DSApgn.setMap(map);
+  google.maps.event.addListener(DSApgn,"click",function(){
+  showmodal('<h3>Doncaster Sheffield Airport</h3><img src="http://i.imgur.com/p4p358b.png"><ul><li>2,893m runway; 24/7 all-weather operations</li><li>50,000sq.ft. cargo transit shed</li><li>All aircraft sizes handled up to B747/AN-225</li><li>Wide-ranging air freight handling capabilities</li><li>Specialist ad-hoc cargo handling expertise</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/p/fast-market-access.html#ByAir">more</a>');
+ 
+  });
+  var ABPpoints =
+[
+new google.maps.LatLng(53.476605,-1.012201),
+new google.maps.LatLng(53.484164,-1.007137),
+new google.maps.LatLng(53.485441,-1.006365),
+new google.maps.LatLng(53.486105,-1.005163),
+new google.maps.LatLng(53.486054,-1.004305),
+new google.maps.LatLng(53.485952,-1.003361),
+new google.maps.LatLng(53.487126,-1.002588),
+new google.maps.LatLng(53.488454,-1.003447),
+new google.maps.LatLng(53.487892,-1.006622),
+new google.maps.LatLng(53.486769,-1.008854),
+new google.maps.LatLng(53.485901,-1.010227),
+new google.maps.LatLng(53.485594,-1.010656),
+new google.maps.LatLng(53.485237,-1.012545),
+new google.maps.LatLng(53.484624,-1.012802),
+new google.maps.LatLng(53.484522,-1.016493),
+new google.maps.LatLng(53.482734,-1.019154),
+new google.maps.LatLng(53.482019,-1.019497),
+new google.maps.LatLng(53.481713,-1.019583),
+new google.maps.LatLng(53.483398,-1.027908),
+new google.maps.LatLng(53.482683,-1.028681),
+new google.maps.LatLng(53.482479,-1.026707),
+new google.maps.LatLng(53.481457,-1.02705),
+new google.maps.LatLng(53.480895,-1.023445),
+new google.maps.LatLng(53.480231,-1.023359),
+new google.maps.LatLng(53.479823,-1.022072),
+new google.maps.LatLng(53.477064,-1.016493),
+new google.maps.LatLng(53.476707,-1.014776),
+new google.maps.LatLng(53.476656,-1.013489),
+new google.maps.LatLng(53.476605,-1.012459),
+new google.maps.LatLng(53.476605,-1.012201)
+];
+
+  // Construct the polygon.
+  ABPpgn = new google.maps.Polygon({paths: ABPpoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  ABPpgn.setMap(map);
+  google.maps.event.addListener(ABPpgn,"click",function(){
+  showmodal('<h3>Robin Hood Airport Business Park</h3><br><img src="http://www.peel.co.uk/pictures/propertypark/3/3/0/.330/~iDbcU323/RHADS_brochure2012masterplan-4.jpg"><ul><li>164 acre Business Park on the Doncaster Sheffield Airport site</li><li>Planning consent for over 2m sq.ft. of commercial development</li><li>High-quality office and industrial/distribution units available</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/09/robin-hood-airport-business-park-with.html">more</a>');
+});
+   var gparkpoints =
+[
+new google.maps.LatLng(53.536482,-1.040955),
+new google.maps.LatLng(53.535564,-1.036749),
+new google.maps.LatLng(53.533676,-1.031685),
+new google.maps.LatLng(53.533472,-1.030312),
+new google.maps.LatLng(53.533013,-1.030912),
+new google.maps.LatLng(53.533013,-1.032715),
+new google.maps.LatLng(53.531942,-1.032372),
+new google.maps.LatLng(53.526585,-1.038637),
+new google.maps.LatLng(53.526687,-1.04044)
+];
+
+  // Construct the polygon.
+  gparkpgn = new google.maps.Polygon({paths: gparkpoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  gparkpgn.setMap(map);
+  google.maps.event.addListener(gparkpgn,"click",function(){
+  showmodal('<h3>G-Park Doncaster</h3><img src="//lh4.ggpht.com/-ynrB_oQEbBE/UisHn4i9jHI/AAAAAAAAAes/lP01gZnOSN8/s800/GPark4.jpg"><ul><li>126 acre site with B1, B2, B8 outline planning consent</li><li>Up to 1.5m sq.ft. of warehouse / production space</li><li>Established strategic distribution location at M18 Junction 4</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/02/g-park-doncaster-15-million-square-feet.html">more</a>');
+});
+var railportpoints =
+[
+new google.maps.LatLng(53.513521,-1.139317),
+new google.maps.LatLng(53.510306,-1.135025),
+new google.maps.LatLng(53.511888,-1.133137),
+new google.maps.LatLng(53.509489,-1.130219),
+new google.maps.LatLng(53.509744,-1.129103),
+new google.maps.LatLng(53.507753,-1.126099),
+new google.maps.LatLng(53.504946,-1.114168),
+new google.maps.LatLng(53.500913,-1.1164),
+new google.maps.LatLng(53.508468,-1.141548),
+new google.maps.LatLng(53.510918,-1.138887),
+new google.maps.LatLng(53.5125,-1.140432)
+];
+
+  // Construct the polygon.
+  railportpgn = new google.maps.Polygon({paths: railportpoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  railportpgn.setMap(map);
+  google.maps.event.addListener(railportpgn,"click",function(){
+  showmodal('<h3>Doncaster International Railport</h3><img src="//lh3.googleusercontent.com/-EIHchswAG1c/Uj2QX-Yy_lI/AAAAAAAAA8Y/yZrDj4DfB04/s350/Railport.JPG"><ul><li>5 hectare (50,000sq.m.) intermodal rail terminal</li><li>Close proximity to Doncaster’s primary logistics and distribution sites</li><li>Rail freight connections to Felixstowe, Southampton and Tilbury ports</li></ul> Find out <a target="_parent" href="http://www.logisticshubuk.com/p/fast-market-access.html#ByRail">more</a> ');
+});
+var FPpoints =
+[
+new google.maps.LatLng(53.502291,-1.134081),
+new google.maps.LatLng(53.500096,-1.126699),
+new google.maps.LatLng(53.499024,-1.127815),
+new google.maps.LatLng(53.501423,-1.134768)
+];
+
+  // Construct the polygon.
+  FPpgn = new google.maps.Polygon({paths: FPpoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  FPpgn.setMap(map);
+  google.maps.event.addListener(FPpgn,"click",function(){
+  showmodal('<h3>V3 First Point, Doncaster</h3><ul><li>Industrial / warehouse development with B1, B2, B8 planning consent</li><li>2 large footprint units available for immediate occupation</li><li>Located near M18 Junction 3</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/09/v3-firstpoint-doncaster-junction-3-m18.html">more.</a>');
+});
+var bhoffpoints =
+[
+new google.maps.LatLng(53.52214553963732, -1.1437797546386719),
+new google.maps.LatLng(53.52245170279796, -1.1363983154296875),
+new google.maps.LatLng(53.51990027551432, -1.1362266540527344),
+new google.maps.LatLng(53.52000233555601, -1.1437797546386719)
+];
+
+  // Construct the polygon.
+  bhoffpgn = new google.maps.Polygon({paths: bhoffpoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  bhoffpgn.setMap(map);
+  google.maps.event.addListener(bhoffpgn,"click",function(){
+  showmodal('<h3>Doncaster Rail Station</h3><img src="http://i67.photobucket.com/albums/h283/Superfly_bucket/doncaster20rail20stationWEB.jpg"><ul><li>Fast, regular passenger rail services to UK and continental European destinations</li> <li>London (Kings Cross): 88 minutes. </li><li>Over 45 trains to London daily</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/p/fast-market-access.html#ByRail">more.</a>');
+});
+
+var nimbuspoints =
+[
+new google.maps.LatLng(53.62193936685294, -0.9757232666015625),
+new google.maps.LatLng(53.62234662164332, -0.9675693511962891),
+new google.maps.LatLng(53.61776477868735, -0.9666252136230469),
+new google.maps.LatLng(53.617662954306134, -0.9759807586669922)
+];
+
+  // Construct the polygon.
+nimbuspgn = new google.maps.Polygon({paths: nimbuspoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  nimbuspgn.setMap(map);
+  google.maps.event.addListener(nimbuspgn,"click",function(){
+  showmodal('<h3>Nimbus Park</h3><ul><li>16 acre phase 2 development with B8 planning consent</li><li>Warehouse or industrial units from 80,000 sq.ft. to 230,000 sq.ft</li><li>Located at M18 Junction 6</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/04/nimbus-park.html">more.</a>');
+ });
+/* 
+var capitolpoints =
+[
+new google.maps.LatLng(53.61639012881801, -0.9811305999755859),
+new google.maps.LatLng(53.616288301121074, -0.9663677215576172),
+new google.maps.LatLng(53.613131520692995, -0.9650802612304688),
+new google.maps.LatLng(53.61282601328642, -0.9807872772216797)
+];
+
+  // Construct the polygon.
+capitolpgn = new google.maps.Polygon({paths: capitolpoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  capitolpgn.setMap(map);
+  google.maps.event.addListener(capitolpgn,"click",function(){
+  showmodal('<h3>Capitol Park</h3><ul><li>305 acre commercial development with B1, B2, B8 planning consent</li><li>Units available for warehouse, production or office use</li><li>Located at M62 Junction 36</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/09/capital-park.html">more.</a>');
+});
+*/
+var redhousepoints =
+[
+new google.maps.LatLng(53.576149073641155, -1.2135601043701172),
+new google.maps.LatLng(53.575843298702324, -1.1927032470703125),
+new google.maps.LatLng(53.57298929263099, -1.1921024322509766),
+new google.maps.LatLng(53.57263252832662, -1.213388442993164)
+];
+
+  // Construct the polygon.
+redhousepgn = new google.maps.Polygon({paths: redhousepoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  redhousepgn.setMap(map);
+  google.maps.event.addListener(redhousepgn,"click",function(){
+  showmodal('<h3>Redhouse Interchange</h3><ul><li>17.24 acre development with outline B1, B2, B8 and C1 planning consent</li><li>Warehouse / industrial development opportunities</li><li>Located at A1(M) Junction 33</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/03/redhouse-interchange.html">more.</a>');
+ }); 
+/*var AMPpoints =
+[
+new google.maps.LatLng(53.38865225638026, -1.3833332061767578),
+new google.maps.LatLng(53.388447503736685, -1.371316909790039),
+new google.maps.LatLng(53.385324903894194, -1.371316909790039),
+new google.maps.LatLng(53.385324903894194, -1.3838481903076172)
+];
+
+  // Construct the polygon.
+AMPpgn = new google.maps.Polygon({paths: AMPpoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  AMPpgn.setMap(map);
+  google.maps.event.addListener(AMPpgn,"click",function(){
+  showmodal('<h3>Advanced Manufacturing Park, Waverley</h3><img src="http://lh6.ggpht.com/-25dxuzzWJBU/UkK1KATzfUI/AAAAAAAABDQ/YIDfaYxVTL8/s350/IMG_5630.JPG"><ul><li>The UK’s premier advanced manufacturing Technology Park</li><li>Home to world-class research and manufacturing organisations</li><li>A range of office and industrial development opportunities</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/09/waverley.html">more</a>');
+ }); 
+*/
+var SBPpoints =
+[
+new google.maps.LatLng(53.39806981341725, -1.3896846771240234),
+new google.maps.LatLng(53.39786510607368, -1.3704586029052734),
+new google.maps.LatLng(53.39361720647984, -1.371145248413086),
+new google.maps.LatLng(53.393361295373424, -1.3893413543701172)
+];
+
+  // Construct the polygon.
+SBPpgn = new google.maps.Polygon({paths: SBPpoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  SBPpgn.setMap(map);
+  google.maps.event.addListener(SBPpgn,"click",function(){
+  showmodal('<h3>Sheffield Business Park</h3><img src="http://lh5.ggpht.com/-xcd2tQd6_Eg/Ui5EItok_uI/AAAAAAAAAiw/VTALd5f68Eo/s350/shefbizpark.jpeg"><ul><li>Exclusive 200 acre Business Park</li><li>Consent for 1m sq.ft. of new office, research and technology buildings</li><li>Located within 5 minutes of M1 Junctions 33 and 34</li><li>Enterprise Zone status</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/09/sheffield-business-park-with-enterprise.html">more</a>');
+});
+var FARRRSpoints =
+[
+new google.maps.LatLng(53.48784126178926, -1.1168289184570312),
+new google.maps.LatLng(53.48886262328611, -1.0526275634765625),
+new google.maps.LatLng(53.48590060718603, -1.0521125793457031),
+new google.maps.LatLng(53.48579846501053, -1.1166572570800781)
+];
+
+  // Construct the polygon.
+FARRRSpgn = new google.maps.Polygon({paths: FARRRSpoints,strokeWeight: 0,fillColor: '#FF0000',fillOpacity: 0.0});
+
+  FARRRSpgn.setMap(map);
+  google.maps.event.addListener(FARRRSpgn,"click",function(){
+  showmodal('<h3>FARRRS Link Road</h3><ul></li>New link road connecting Doncaster Sheffield Airport, Robin Hood Airport Business Park and iPort to M18 Junction 3 </li></li>Reducing airport journey times significantly for freight and passengers</li><li>Providing fast connections between Doncaster’s logistics sites and multi-modal transport terminals</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/p/the-uks-central-transport-hub.html#FARRRSNew Link Road"> more</a>');
+});
+
+//Add some Markers
+
+// New Markers
+    newmkrMarkhamVale = new google.maps.Marker({
+    position: new google.maps.LatLng(53.240805,-1.3279722),
+    icon:'/img/marker.png',
+    title:"Markham Vale"
+    });
+    google.maps.event.addListener(newmkrMarkhamVale, 'click', function() {
+    showmodal('<h3>Markham Vale</h3><img src="//lh3.googleusercontent.com/-GMyQ3q_w0B4/VDJ5gRGn39I/AAAAAAAABpM/zlsKk7C7jwY/s350/Markham%252520Vale.jpg"><ul><li>Markham Vale can cater for individual plots up to 1 million sq ft (92,903 sq m)</li><li>B1, B2, B8 planning consent</li><li>All principal roads and services are in place for the areas currently under development</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2014/08/markham-vale-200-acres-with-enterprise.html">more.</a>');
+    });
+
+    newmkrCastlewoodBusinessPark = new google.maps.Marker({
+    position: new google.maps.LatLng(53.109596,-1.297800),
+    icon:'/img/marker.png',
+    title:"Castlewood Business Park"
+    });
+    google.maps.event.addListener(newmkrCastlewoodBusinessPark, 'click', function() {
+    showmodal('<h3>Castlewood Business Park</h3><img src="//lh3.googleusercontent.com/-oE1o62rsDO4/VDJ4bhVOO2I/AAAAAAAABno/NNn4m2sjM0g/s350/Castlewood%252520BP.jpg"><ul><li>Individual plots and infrastructure have been designed to provide distribution units of all sizes up to 470,000 sq ft.</li><li>B1, B2, B8 planning consent</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2014/08/castlewood-business-park-96-acres-with.html">more.</a>');
+    });
+
+    newmkrCapitolPark = new google.maps.Marker({
+    position: new google.maps.LatLng(53.551307,-1.522557),
+    icon:'/img/marker.png',
+    title:"Capitol Park"
+    });
+    google.maps.event.addListener(newmkrCapitolPark, 'click', function() {
+    showmodal('<h3>Capitol Park</h3><img src="//lh5.googleusercontent.com/-yrZpB62oQ-E/VDUWM7c8BCI/AAAAAAAABrA/k3w4hUSF4bc/s350/Capitol%252520Park%25252C%252520Barnsley.jpg"><ul><li>Bespoke design and build units available</li><li>36 acres with B1, B2, B8 planning consent</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2014/10/capitol-park-barnsley-36-acres-with.html">more.</a>');
+    });
+
+    newmkrDinningtonPhase2 = new google.maps.Marker({
+    position: new google.maps.LatLng(53.370072,-1.236964),
+    icon:'/img/marker.png',
+    title:"Dinnington Phase2"
+    });
+    google.maps.event.addListener(newmkrDinningtonPhase2, 'click', function() {
+    showmodal('<h3>Dinnington Phase2</h3><img src="//lh3.googleusercontent.com/-bO0NkVmBT7Y/VDJ4iOE0SPI/AAAAAAAABn4/jszrhnh4WYU/s350/Dinnington%25252C%252520Phase%2525202.jpg"><ul><li>41 acres with B1, B2, B8 planning consent</li><li>Industrial development opportunities within the established Dinnington Business Park, which extends over 85 acres (34.3 ha) approx.</li><li>Fully remediated and serviced following construction of main spine road off Todwick road</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2014/08/dinnington-phase-2-41-acres-with.html">more.</a>');
+    });
+
+    newmkrRockingham = new google.maps.Marker({
+    position: new google.maps.LatLng(53.504547,-1.467288),
+    icon:'/img/marker.png',
+    title:"Rockingham"
+    });
+    google.maps.event.addListener(newmkrRockingham, 'click', function() {
+    showmodal('<h3>Rockingham</h3><img src="//lh6.googleusercontent.com/-xIwXt3cOUXQ/VDJ5oozhY-I/AAAAAAAABpg/W-0KSpOdCAc/s350/Rockingham.png"><ul><li>Units available up to 250,000 sq ft</li><li>Total potential development floorspace subject to masterplan/planning/DD</li><li>Design and build units available</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2014/08/rockingham-barnsley-130-acres-with.html">more.</a>');
+    });
+
+    newmkrHarworthPhase1 = new google.maps.Marker({
+    position: new google.maps.LatLng(53.408847,-1.067265),
+    icon:'/img/marker.png',
+    title:"Harworth Phase1"
+    });
+    google.maps.event.addListener(newmkrHarworthPhase1, 'click', function() {
+    showmodal('<h3>Harworth Phase1</h3><img src="//lh4.googleusercontent.com/-Inqieg9rPxA/VDJ4qwpCZYI/AAAAAAAABoI/zWcv2lVRV0s/s350/Harworth%252520Phase%2525201.png"><ul><li>Fast motorway access to A1(M) (5 minutes) and M18</li><li>An established business area, adjacent to the local centre of Harworth, 10 miles south of Doncaster.</li><li>Nearby rail connection</li><li>Robin Hood Airport Doncaster Sheffield accessible in less than 30 minutes</li><li>A unit can be created up to 40,000 sq. ft. within a modern mixed office and industrial area</li><li>Total potential development floorspace subject to masterplan/planning/DD</li><li>Design and build units available</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2014/08/harworth-business-park-phase-1-up-to.html">more.</a>');
+    });
+
+    newmkrHarworthPhase2 = new google.maps.Marker({
+    position: new google.maps.LatLng(53.415836,-1.058522),
+    icon:'/img/marker.png',
+    title:"Harworth Phase2"
+    });
+    google.maps.event.addListener(newmkrHarworthPhase2, 'click', function() {
+    showmodal('<h3>Harworth Phase2</h3><img src="//lh5.googleusercontent.com/-_KRRzETI8RE/VDJ41DjOovI/AAAAAAAABoY/hC6nga0q_Rk/s350/Harworth%252520Phase%2525202.png"><ul><li>Fast motorway access to A1(M) (5 minutes) and M18</li><li>An established business area, adjacent to the local centre of Harworth, 10 miles south of Doncaster.</li><li>Nearby rail connection</li><li>Robin Hood Airport Doncaster Sheffield accessible in less than 30 minutes</li><li>A unit can be created up to 40,000 sq. ft. within a modern mixed office and industrial area</li><li>Total potential development floorspace subject to masterplan/planning/DD</li><li>Design and build units available</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2014/08/harworth-business-park-phase-2-design.html">more.</a>');
+    });
+
+    newmkrThorne = new google.maps.Marker({
+    position: new google.maps.LatLng(53.634983,-0.934267),
+    icon:'/img/marker.png',
+    title:"Thorne"
+    });
+    google.maps.event.addListener(newmkrThorne, 'click', function() {
+    showmodal('<h3>Thorne</h3><img src="//lh6.googleusercontent.com/-DHvh2fJS7UY/VDJ5xX26IEI/AAAAAAAABpw/EpiIvuYmhh0/s350/Thorne.png"><ul><li>80 acre site promoted for employment uses</li><li>Potential for a rail link on-site</li><li>Robin Hood Airport Doncaster Sheffield and Doncaster&#39;s multimodal freight terminals accessible in less than 30 minutes</li><li>Local amenities nearby</li><li>Potential to occupy a 400,000 sq. ft. building, ideal for many logistics companies</li><li>Total potential development floorspace subject to masterplan/planning/DD</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2014/08/thorne-80-acre-site-for-distribution.html">more.</a>');
+    });
+
+
+//End New markers
+/*
+    mkrcapitol = new google.maps.Marker({
+    position: new google.maps.LatLng(53.615210,-0.977697),
+    //map: map,
+    icon:'/img/marker.png',
+    title:"Capitol Park"
+    });
+    google.maps.event.addListener(mkrcapitol, 'click', function() {
+    showmodal('<h3>Capitol Park</h3><ul><li>305 acre commercial development with B1, B2, B8 planning consent</li><li>Units available for warehouse, production or office use</li><li>Located at M62 Junction 36</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/09/capital-park.html">more.</a>');
+    });
+
+    mkrAMP = new google.maps.Marker({
+    position: new google.maps.LatLng(53.386954,-1.380672),
+    //map: map,
+    icon:'/img/marker.png',
+    title:"AMP Waverley"
+    });
+    google.maps.event.addListener(mkrAMP, 'click', function() {
+showmodal('<h3>Advanced Manufacturing Park, Waverley</h3><img src="http://lh6.ggpht.com/-25dxuzzWJBU/UkK1KATzfUI/AAAAAAAABDQ/YIDfaYxVTL8/s350/IMG_5630.JPG"><ul><li>The UK’s premier advanced manufacturing Technology Park</li><li>Home to world-class research and manufacturing organisations</li><li>A range of office and industrial development opportunities</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/09/waverley.html">more</a>');
+    });
+*/
+    mkrSBP = new google.maps.Marker({
+    position: new google.maps.LatLng(53.396504,-1.388097),
+    //map: map,
+    icon:'/img/marker.png',
+    title:"Sheffield Business Park"
+    });
+    google.maps.event.addListener(mkrSBP, 'click', function() {
+    showmodal('<h3>Sheffield Business Park</h3><img src="http://lh5.ggpht.com/-xcd2tQd6_Eg/Ui5EItok_uI/AAAAAAAAAiw/VTALd5f68Eo/s350/shefbizpark.jpeg"><ul><li>Exclusive 200 acre Business Park</li><li>Consent for 1m sq.ft. of new office, research and technology buildings</li><li>Located within 5 minutes of M1 Junctions 33 and 34</li><li>Enterprise Zone status</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/09/sheffield-business-park-with-enterprise.html">more</a>');
+    });
+    mkrredhouse = new google.maps.Marker({
+    position: new google.maps.LatLng(53.573329,-1.213131),
+    //map: map,
+    icon:'/img/marker.png',
+    title:"Redhouse Interchange"
+    });
+    google.maps.event.addListener(mkrredhouse, 'click', function() {
+    showmodal('<h3>Redhouse Interchange</h3><ul><li>17.24 acre development with outline B1, B2, B8 and C1 planning consent</li><li>Warehouse / industrial development opportunities</li><li>Located at A1(M) Junction 33</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/03/redhouse-interchange.html">more.</a>');
+    });
+    mkrnimbus = new google.maps.Marker({
+    position: new google.maps.LatLng(53.620149,-0.972033),
+    //map: map,
+    icon:'/img/marker.png',
+    title:"Nimbus Park"
+    });
+    google.maps.event.addListener(mkrnimbus, 'click', function() {
+    showmodal('<h3>Nimbus Park</h3><ul><li>16 acre phase 2 development with B8 planning consent</li><li>Warehouse or industrial units from 80,000 sq.ft. to 230,000 sq.ft</li><li>Located at M18 Junction 6</li></ul>Find out <a target="_parent" href="http://www.logisticshubuk.com/2013/04/nimbus-park.html">more.</a>');
+    });
+    mkruk = new google.maps.Marker({
+    position: new google.maps.LatLng(53.494751, -1.086102),
+    icon:'/img/marker-blue-48px.png',
+    title:"LogisticsHubUK"
+    });
+    google.maps.event.addListener(mkruk, 'click', function() {
+        logisticsregion();
+    });
+  //hide until map is zoomed out below zoom 11
+  //here.setVisible(false);
+  //listen for Clicks on the map
+  google.maps.event.addListener(map, 'click', function(e) {
+    //hide the control panel
+    //$('#keypanel').css('display','none');
+    $('#keypanel').toggle(); 
+    //alert(e.latLng);
+  });
+
+ google.maps.event.addListener(map, 'zoom_changed', function() {
+    zoomLevel = map.getZoom();
+    if(zoomLevel >= 12){
+    hidelogisticsmarkers();
+    }else{
+    if(zoomLevel == 7){
+      hidelogisticsmarkers();
+    }else{
+     showlogisticsmarkers();
+    }
+    }
+    if(zoomLevel >= 8){
+      hideukmarker();
+    }else{
+    //herepgn.setVisible(true);
+    //herepgn.setOptions({strokeWeight: 2});
+    }
+    //console.log("the zoom level is: "+zoomLevel);
+});
+google.maps.event.addListenerOnce(map, 'tilesloaded', function() {
+  //canalgoole.hide();
+  //canaltrent.hide();
+  //togglecanals();
+  $('#keypanel').css('display','block');
+    	if(mapview[1] == 'hub'){
+	   logisticshub();
+	   map.setZoom(12);
+	   $('#mapkey').toggle();
+	}
+	if(mapview[1] == 'region'){
+	   logisticsregion();
+	   map.setZoom(10);
+	   $('#mapkey').toggle();
+	}
+});
+}
+
+/** @constructor */
+function USGSOverlay(bounds, image, map) {
+
+  // Now initialize all properties.
+  this.bounds_ = bounds;
+  this.image_ = image;
+  this.map_ = map;
+
+  // Define a property to hold the image's div. We'll
+  // actually create this div upon receipt of the onAdd()
+  // method so we'll leave it null for now.
+  this.div_ = null;
+
+  // Explicitly call setMap on this overlay
+  this.setMap(map);
+}
+
+/**
+ * onAdd is called when the map's panes are ready and the overlay has been
+ * added to the map.
+ */
+USGSOverlay.prototype.onAdd = function() {
+
+  var div = document.createElement('div');
+  div.style.border = 'none';
+  div.style.borderWidth = '0px';
+  div.style.position = 'absolute';
+
+  // Create the img element and attach it to the div.
+  var img = document.createElement('img');
+  img.src = this.image_;
+  img.style.width = '100%';
+  img.style.height = '100%';
+  div.appendChild(img);
+
+  this.div_ = div;
+
+  // Add the element to the "overlayImage" pane.
+  var panes = this.getPanes();
+  panes.overlayImage.appendChild(this.div_);
+};
+
+USGSOverlay.prototype.draw = function() {
+
+  // We use the south-west and north-east
+  // coordinates of the overlay to peg it to the correct position and size.
+  // To do this, we need to retrieve the projection from the overlay.
+  var overlayProjection = this.getProjection();
+
+  // Retrieve the south-west and north-east coordinates of this overlay
+  // in LatLngs and convert them to pixel coordinates.
+  // We'll use these coordinates to resize the div.
+  var sw = overlayProjection.fromLatLngToDivPixel(this.bounds_.getSouthWest());
+  var ne = overlayProjection.fromLatLngToDivPixel(this.bounds_.getNorthEast());
+
+  // Resize the image's div to fit the indicated dimensions.
+  var div = this.div_;
+  div.style.left = sw.x + 'px';
+  div.style.top = ne.y + 'px';
+  div.style.width = (ne.x - sw.x) + 'px';
+  div.style.height = (sw.y - ne.y) + 'px';
+};
+
+USGSOverlay.prototype.onRemove = function() {
+  this.div_.parentNode.removeChild(this.div_);
+};
+
+// [START region_hideshow]
+// Set the visibility to 'hidden' or 'visible'.
+USGSOverlay.prototype.hide = function() {
+  if (this.div_) {
+    // The visibility property must be a string enclosed in quotes.
+    this.div_.style.visibility = 'hidden';
+  }
+};
+
+USGSOverlay.prototype.show = function() {
+  if (this.div_) {
+    this.div_.style.visibility = 'visible';
+  }
+};
+
+USGSOverlay.prototype.toggle = function() {
+  if (this.div_) {
+    if (this.div_.style.visibility == 'hidden') {
+      this.show();
+    } else {
+      this.hide();
+    }
+  }
+};
+
+// [END region_hideshow]
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+mkruk
+function hideukmarker(){
+   mkruk.setMap(null) 
+}
+function showukmarker(){
+     mkruk.setMap(map)
+}
+
+function hidelogisticsmarkers(){
+//mkrcapitol.setMap(null);
+//mkrAMP.setMap(null);
+mkrSBP.setMap(null);
+mkrredhouse.setMap(null);
+mkrnimbus.setMap(null);
+newmkrMarkhamVale.setMap(null);
+newmkrCastlewoodBusinessPark.setMap(null);
+newmkrCapitolPark.setMap(null);
+newmkrDinningtonPhase2.setMap(null);
+newmkrRockingham.setMap(null);
+newmkrHarworthPhase1.setMap(null);
+newmkrHarworthPhase2.setMap(null);
+newmkrThorne.setMap(null);
+}
+function showlogisticsmarkers(){
+//mkrcapitol.setMap(map);
+//mkrAMP.setMap(map);
+mkrSBP.setMap(map);
+mkrredhouse.setMap(map);
+mkrnimbus.setMap(map);
+newmkrMarkhamVale.setMap(map);
+newmkrCastlewoodBusinessPark.setMap(map);
+newmkrCapitolPark.setMap(map);
+newmkrDinningtonPhase2.setMap(map);
+newmkrRockingham.setMap(map);
+newmkrHarworthPhase1.setMap(map);
+newmkrHarworthPhase2.setMap(map);
+newmkrThorne.setMap(map);
+}
+function toggleMarkers(){
+if (mkrSBP.getMap() === null) {
+            showlogisticsmarkers();
+        } else {
+            hidelogisticsmarkers();
+        }
+}
+function yellow(){
+    airportbusiness.toggle();
+    firstpoint.toggle();
+    inlandport.toggle();
+    gpark.toggle();
+    nimbus.toggle();
+    redhouse.toggle();
+    SBP.toggle();
+    toggleMarkers();
+   
+}
+function canals(){
+  var canalgooleswBound = new google.maps.LatLng(53.527001715691746, -1.1363906860351562  );
+  var canalgooleneBound = new google.maps.LatLng(53.69646120721985, -0.8837051391601562);
+  var canalgoolebounds = new google.maps.LatLngBounds(canalgooleswBound, canalgooleneBound);
+  
+  var srcImage = '/img/canal-goole.'+imagetype;
+  canalgoole = new USGSOverlay(canalgoolebounds, srcImage, map);
+    
+  var canaltrentswBound = new google.maps.LatLng(53.587241807367526, -1.072509765625  );
+  var canaltrentneBound = new google.maps.LatLng(53.612708597132645, -0.738800048828125);
+  var canaltrentbounds = new google.maps.LatLngBounds(canaltrentswBound, canaltrentneBound);
+  
+  var srcImage = '/img/canal-trent.'+imagetype;
+  canaltrent = new USGSOverlay(canaltrentbounds, srcImage, map);
+
+    map.setCenter(new google.maps.LatLng(53.6104327954549, -0.9616470336914062));
+    map.setZoom(11);
+    map.setMapTypeId('canal');
+    hidelogisticsmarkers();
+}
+function hidecanals(){
+  if(typeof canalgoole === 'object'){canalgoole.hide();}
+  if(typeof canaltrent === 'object'){canaltrent.hide();}
+}
+function rail(){
+//herepgn.setVisible(false);
+showlogisticsmarkers();
+hidecanals();
+hideukmarker();
+map.setMapTypeId('rail');
+//$('#hubcontrol').css('display','none');
+map.setCenter(new google.maps.LatLng(53.494751, -1.086102));
+map.setZoom(11);
+}
+function purple(){
+rossingtonhousing.toggle();
+}
+function transport(){
+DSA.toggle();
+barnhoff.toggle();
+railport.toggle();
+}
+function ports(){
+//herepgn.setVisible(false);
+hidecanals();
+hideukmarker();
+map.setMapTypeId('ldroadatlas');
+//$('#hubcontrol').css('display','none');
+map.setCenter(new google.maps.LatLng(53.646126, -0.525284));
+map.setZoom(10);
+}
+function logisticshub(){
+//lsoLabel.set('fontSize', 100);
+//herepgn.setVisible(false);
+hidecanals();
+hideukmarker();
+map.setCenter(new google.maps.LatLng(53.509250, -1.076832));
+map.setZoom(12);
+//$('#hubcontrol').css('display','block');
+map.setMapTypeId('ldroadatlas');
+}
+function uk(){
+showukmarker();
+hidecanals();
+hidelogisticsmarkers();
+//$('#hubcontrol').css('display','none');
+map.setMapTypeId('ldroadatlas');
+map.setCenter(new google.maps.LatLng(53.494751, -1.086102));
+map.setZoom(7);
+//herepgn.setVisible(true);
+//herepgn.setOptions({strokeWeight: 2});
+
+//map.setOptions({styles: styles});
+//var styledMap = new google.maps.StyledMapType(styles,{name: "Styled Map"});
+//Associate the styled map with the MapTypeId and set it to display.
+//map.mapTypes.set('map_style', styledMap);     
+}
+function logisticsregion(){
+hideukmarker();
+hidecanals();
+showlogisticsmarkers();
+map.setMapTypeId('ldroadatlas');
+//$('#hubcontrol').css('display','none');
+map.setCenter(new google.maps.LatLng(53.494751, -1.086102));
+map.setZoom(11);
+}
+function showmodal(html){
+$('#modal-content').html(html);
+$('#modal-div,#modal-background').toggleClass('active');
+}
+$(document).ready(function(){
+    //$('.logisticshubbtn').css('display','none')
+	$('#modal-background, #modal-close').click(function () {
+		$('#modal-div,#modal-background').toggleClass('active');
+		});
+	$('#menuswitch').click(function () {
+		$('#keypanel').toggle();
+		});	
+});
+    </script>
+  </head>
+  <body>
+
+<!-- [START region_toolbar] -->
+<!-- Add an input button to initiate the toggle method on the overlay. -->
+    <div id="menuswitch" >
+        <div class="rmm-button shadow"><span>&nbsp;</span><span>&nbsp;</span><span>&nbsp;</span></div>
+    </div>
+    <div id ="keypanel" class="shadow">
+      <h3>Map Views</h3>
+      <hr>
+<table>
+      <tr><td>LogisticsHubUK</td><td> <input type="button" value=" view " onclick="logisticshub();"></input></td></tr>
+      <tr><td colspan='2'>
+      <table id="hubcontrol">
+      <tr><td>FARRRS Road</td><td>&nbsp;&nbsp;<input class="logisticshubbtn" style="background-color:#730b00" type="button" value=" on/off " onclick="farrsroad.toggle();"></input></td></tr>
+      <tr><td>Logistics Sites</td><td>&nbsp;&nbsp;<input class="logisticshubbtn" style="background-color:#c98026" type="button" value=" on/off " onclick="yellow();"></input></td></tr>
+      <tr><td>New Housing</td><td>&nbsp;&nbsp;<input class="logisticshubbtn" style="background-color:#483457" type="button" value=" on/off " onclick="purple();"></input></td></tr>
+      <tr><td>Transport <br>Terminals</td><td>&nbsp;&nbsp;<input class="logisticshubbtn" style="background-color:#bd3817"type="button" value=" on/off " onclick="transport();"></input></td></tr>
+      </table>
+      </td></tr>
+      <tr><td>Canals</td><td> <input class='canalbtn' type="button" value=" view " onclick="canals();"></input></td></tr>
+      <tr><td>Rail Links</td><td> <input class='railbtn' type="button" value=" view " onclick="rail();"></input></td></tr>
+      <tr><td>Ports</td><td> <input type="button" value=" view " onclick="ports();"></input></td></tr>
+      <tr><td>Logistics Region&nbsp;&nbsp;</td><td> <input type="button" value=" view " onclick="logisticsregion();"></input></td></tr>
+      <tr><td>UK Location</td><td> <input type="button" value=" view " onclick="uk();"></input></td></tr>     
+      </table>
+      <a target="_parent" href="http://map.logisticshubuk.com">View Larger Map <img style="vertical-align:sub;" src='img/outlink.png'/></a>
+      <section id='mapkey'>
+      <h3>Map Key</h3>
+      <hr>
+      <img src="../img/mapkey.jpg"/><br>
+      <hr>
+      <img style="float:right;padding-right:5px;" src="//lh3.googleusercontent.com/-gHi--kcDVzI/Um5QQkG043I/AAAAAAAABRo/jtLMWx75D1E/s120/logistics-hub_1200px-light.png"/>
+      </section>
+    </div>
+<!-- [END region_toolbar] -->
+    <div id='map-canvas'></div>
+<div id='modal-background'></div>
+<div id='modal-div'>
+    <button id='modal-close'>X</button><br>
+    <div id='modal-content'></div>
+    
+</div>
+
+  </body>
+</html>
+
